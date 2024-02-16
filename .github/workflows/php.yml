@@ -1,0 +1,32 @@
+name: PHP redis extension repro
+on:
+  push:
+jobs:
+  repro:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+    
+      - name: Setup cache environment
+        id: cache-php-extensions
+        uses: shivammathur/cache-extensions@v1
+        continue-on-error: true
+        with:
+          php-version: "8.2"
+          extensions: redis-5.3.7
+          key: php_extensions_cache_phpunit
+      
+      - name: Cache extensions
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.cache-php-extensions.outputs.dir }}
+          key: ${{ steps.cache-php-extensions.outputs.key }}
+          restore-keys: ${{ steps.cache-php-extensions.outputs.key }}
+      
+      - name: Add php extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: pecl
+          extensions: redis-5.3.7
